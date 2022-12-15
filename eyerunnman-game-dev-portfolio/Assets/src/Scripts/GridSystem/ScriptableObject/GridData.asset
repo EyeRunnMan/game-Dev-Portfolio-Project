@@ -1,0 +1,218 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: faa7e9d8a5640a647beb373fa7416d2a, type: 3}
+  m_Name: GridData
+  m_EditorClassIdentifier: 
+  GridData:
+    gridDimension: {x: 5, y: 5}
+    GridTilesData:
+    - TileNumber: 0
+      Coordinates:
+        X: 0
+        Y: 0
+      Height: 0
+      SlantDirection: 0
+      SlantAngle: 0
+      Type: 0
+    - TileNumber: 1
+      Coordinates:
+        X: 1
+        Y: 0
+      Height: 0
+      SlantDirection: 0
+      SlantAngle: 0
+      Type: 0
+    - TileNumber: 2
+      Coordinates:
+        X: 2
+        Y: 0
+      Height: 0
+      SlantDirection: 0
+      SlantAngle: 0
+      Type: 0
+    - TileNumber: 3
+      Coordinates:
+        X: 3
+        Y: 0
+      Height: 0
+      SlantDirection: 0
+      SlantAngle: 0
+      Type: 0
+    - TileNumber: 4
+      Coordinates:
+        X: 4
+        Y: 0
+      Height: 0
+      SlantDirection: 0
+      SlantAngle: 0
+      Type: 0
+    - TileNumber: 5
+      Coordinates:
+        X: 0
+        Y: 1
+      Height: 0
+      SlantDirection: 0
+      SlantAngle: 0
+      Type: 0
+    - TileNumber: 6
+      Coordinates:
+        X: 1
+        Y: 1
+      Height: 0
+      SlantDirection: 0
+      SlantAngle: 0
+      Type: 0
+    - TileNumber: 7
+      Coordinates:
+        X: 2
+        Y: 1
+      Height: 0
+      SlantDirection: 0
+      SlantAngle: 0
+      Type: 0
+    - TileNumber: 8
+      Coordinates:
+        X: 3
+        Y: 1
+      Height: 0
+      SlantDirection: 0
+      SlantAngle: 0
+      Type: 0
+    - TileNumber: 9
+      Coordinates:
+        X: 4
+        Y: 1
+      Height: 0
+      SlantDirection: 0
+      SlantAngle: 0
+      Type: 0
+    - TileNumber: 10
+      Coordinates:
+        X: 0
+        Y: 2
+      Height: 0
+      SlantDirection: 0
+      SlantAngle: 0
+      Type: 0
+    - TileNumber: 11
+      Coordinates:
+        X: 1
+        Y: 2
+      Height: 0
+      SlantDirection: 0
+      SlantAngle: 0
+      Type: 0
+    - TileNumber: 12
+      Coordinates:
+        X: 2
+        Y: 2
+      Height: 0
+      SlantDirection: 0
+      SlantAngle: 0
+      Type: 0
+    - TileNumber: 13
+      Coordinates:
+        X: 3
+        Y: 2
+      Height: 0
+      SlantDirection: 0
+      SlantAngle: 0
+      Type: 0
+    - TileNumber: 14
+      Coordinates:
+        X: 4
+        Y: 2
+      Height: 0
+      SlantDirection: 0
+      SlantAngle: 0
+      Type: 0
+    - TileNumber: 15
+      Coordinates:
+        X: 0
+        Y: 3
+      Height: 0
+      SlantDirection: 0
+      SlantAngle: 0
+      Type: 0
+    - TileNumber: 16
+      Coordinates:
+        X: 1
+        Y: 3
+      Height: 0
+      SlantDirection: 0
+      SlantAngle: 0
+      Type: 0
+    - TileNumber: 17
+      Coordinates:
+        X: 2
+        Y: 3
+      Height: 0
+      SlantDirection: 0
+      SlantAngle: 0
+      Type: 0
+    - TileNumber: 18
+      Coordinates:
+        X: 3
+        Y: 3
+      Height: 0
+      SlantDirection: 0
+      SlantAngle: 0
+      Type: 0
+    - TileNumber: 19
+      Coordinates:
+        X: 4
+        Y: 3
+      Height: 0.6
+      SlantDirection: 0
+      SlantAngle: 50
+      Type: 0
+    - TileNumber: 20
+      Coordinates:
+        X: 0
+        Y: 4
+      Height: 0
+      SlantDirection: 0
+      SlantAngle: 0
+      Type: 0
+    - TileNumber: 21
+      Coordinates:
+        X: 1
+        Y: 4
+      Height: 0
+      SlantDirection: 0
+      SlantAngle: 0
+      Type: 0
+    - TileNumber: 22
+      Coordinates:
+        X: 2
+        Y: 4
+      Height: 0
+      SlantDirection: 0
+      SlantAngle: 0
+      Type: 0
+    - TileNumber: 23
+      Coordinates:
+        X: 3
+        Y: 4
+      Height: 0
+      SlantDirection: 0
+      SlantAngle: 0
+      Type: 0
+    - TileNumber: 24
+      Coordinates:
+        X: 4
+        Y: 4
+      Height: 0
+      SlantDirection: 0
+      SlantAngle: 0
+      Type: 0
+  GridMesh: {fileID: 0}
