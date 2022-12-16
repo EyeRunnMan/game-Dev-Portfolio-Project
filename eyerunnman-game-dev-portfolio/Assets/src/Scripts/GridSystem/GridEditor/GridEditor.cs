@@ -179,6 +179,7 @@ namespace com.portfolio.gridSystem
             float height = tileData.Height;
             GridEnums.Direction slantDirection=tileData.SlantDirection;
             float slantAngle = tileData.SlantAngle;
+            float leadingEdgeHeight = tileData.LeadingEdgeHeight;
             GridEnums.Tile.Type type = tileData.Type;
 
 
@@ -218,7 +219,12 @@ namespace com.portfolio.gridSystem
 
             SetupHorizontalLayout(GUIElementCallback: () =>
             {
+                EditorGUILayout.BeginVertical();
                 slantAngle = EditorGUILayout.Slider("Slant Angle",outTileData.SlantAngle,0,90);
+                EditorGUILayout.LabelField("-OR-");
+                leadingEdgeHeight = EditorGUILayout.Slider("LeadingEdgeHeight", outTileData.LeadingEdgeHeight, 0, 5);
+                EditorGUILayout.EndVertical();
+
             });
 
             EditorGUILayout.Separator();
@@ -230,7 +236,10 @@ namespace com.portfolio.gridSystem
 
             EditorGUILayout.EndVertical();
 
-            return new GridTileData(tileNumber,coordinates,height,slantDirection,slantAngle,type);
+
+            return new(new GridTileData(tileNumber, coordinates, height, slantDirection, slantAngle, type),leadingEdgeHeight,slantDirection);
+
+            //return new GridTileData(tileNumber,coordinates,height,slantDirection,slantAngle,type);
         }
 
         private void ResetGridSO()

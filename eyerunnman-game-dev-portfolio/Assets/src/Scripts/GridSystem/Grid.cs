@@ -97,8 +97,12 @@ namespace com.portfolio.gridSystem
                     return default;
             }
 
-            int resultTileNumber = resultTileCoordinates.x + resultTileCoordinates.y * rows;
+            if (resultTileCoordinates.x < 0 || resultTileCoordinates.x >= GridDimension.x || resultTileCoordinates.y < 0 || resultTileCoordinates.y >= GridDimension.y)
+            {
+                return default;
+            }
 
+            int resultTileNumber = resultTileCoordinates.x + resultTileCoordinates.y * rows;
 
             GridTileData resultTileData = GetTileByTileNumber(resultTileNumber);
 
