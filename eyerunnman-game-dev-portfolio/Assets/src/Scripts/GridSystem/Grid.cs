@@ -14,10 +14,6 @@ namespace com.portfolio.gridSystem
 
         private Dictionary<int, GridTileObject> tileObjectDictionary = new();
 
-        public List<GridTileObject> GridTileObjects
-        {
-            get => new(tileObjectDictionary.Values);
-        }
         public List<GridTileData> GridTilesData
         {
             get => new(gridData.GridTilesDataDictionary.Values);
@@ -25,11 +21,10 @@ namespace com.portfolio.gridSystem
 
         public Vector2Int GridDimension { get => gridData.GridDimension; }
 
-        private int cols => GridDimension.x;
-        private int rows => GridDimension.y;
+        private int Cols => GridDimension.x;
+        private int Rows => GridDimension.y;
 
-
-        public void GenerateGrid(GridData data, GridTileObject gridTileObjectPrefab)
+        public void GenerateGrid(GridData data,GridTileObject gridTileObjectPrefab)
         {
             ResetGrid();
             this.gridData = data;
@@ -55,30 +50,34 @@ namespace com.portfolio.gridSystem
             tileObjectDictionary = new();
         }
 
-        public void SetupTile(GridTileData data)
+        public void SetupTile(int tileId , GridTileData data)
         {
-            if (tileObjectDictionary.ContainsKey(data.TileNumber))
+            if (tileObjectDictionary.ContainsKey(tileId))
             {
-                tileObjectDictionary[data.TileNumber].SetUpTile(data);
+                tileObjectDictionary[data.TileId].SetUpTile(data);
             }
         }
 
-        private GridTileData GetTileByTileNumber(int tileNumber)
+        private GridTileData GetTileByTileId(int tileId)
         {
-            if (tileObjectDictionary.ContainsKey(tileNumber))
+            if (tileObjectDictionary.ContainsKey(tileId))
             {
-                return tileObjectDictionary[tileNumber].Data;
+                return tileObjectDictionary[tileId].Data;
             }
             else
             {
-                return default;
+                return GridTileData.Default;
             }
         }
 
-        public GridTileData GetTileInDirection(GridTileData refrenceTileData, GridEnums.Direction direction)
+        public GridTileData GetTileInDirection(int tileId , GridEnums.Direction direction)
         {
 
             Vector2Int resultTileCoordinates;
+            GridTileData refrenceTileData = GetTileByTileId(tileId);
+
+            if (refrenceTileData.IsDefault) return refrenceTileData;
+
             switch (direction)
             {
                 case GridEnums.Direction.North:
@@ -94,17 +93,17 @@ namespace com.portfolio.gridSystem
                     resultTileCoordinates = refrenceTileData.Coordinates + Vector2Int.left;
                     break;
                 default:
-                    return default;
+                    return GridTileData.Default;
             }
 
             if (resultTileCoordinates.x < 0 || resultTileCoordinates.x >= GridDimension.x || resultTileCoordinates.y < 0 || resultTileCoordinates.y >= GridDimension.y)
             {
-                return default;
+                return GridTileData.Default;
             }
 
-            int resultTileNumber = resultTileCoordinates.x + resultTileCoordinates.y * rows;
+            int resultTileNumber = resultTileCoordinates.x + resultTileCoordinates.y * Cols;
 
-            GridTileData resultTileData = GetTileByTileNumber(resultTileNumber);
+            GridTileData resultTileData = GetTileByTileId(resultTileNumber);
 
             return resultTileData;
         }

@@ -12,13 +12,20 @@ namespace com.portfolio.gridSystem
     public class GridEditor : EditorWindow
     {
         private GridDataSO SourceGridDataSO;
-        private GridEditorDebugDataSO SourceGridEditorDebugDataSO;
+        private GridEditorConfigDataSO SourceGridEditorDebugDataSO;
 
         static Grid debugGrid;
         static GridTileObject lastClickedDebugTile;
         static EditorGridTile lastClickedEditorGridTile;
         static GridTileData debugGridTileData = new();
         static bool resetToggleValue = false;
+
+        static bool updateNorthTile = false;
+        static bool updateSouthTile = false;
+        static bool updateEastTile = false;
+        static bool updateWestTile = false;
+
+        static bool resetTile = false;
 
         [MenuItem("Portfolio/GridSystem/GridEditor")]
         static void OpenWindow()
@@ -34,7 +41,7 @@ namespace com.portfolio.gridSystem
                 lastClickedDebugTile = Selection.activeGameObject.GetComponent<GridTileObject>();
                 lastClickedEditorGridTile = Selection.activeGameObject.GetComponent<EditorGridTile>();
                 debugGridTileData = new();
-                debugGridTileData = SourceGridDataSO.EditorGetTileData(tileNumber:lastClickedDebugTile.Data.TileNumber);
+                debugGridTileData = SourceGridDataSO.EditorGetTileData(tileNumber:lastClickedDebugTile.Data.TileId);
                 lastClickedEditorGridTile.UpdateDebugData();
             }
 
@@ -42,6 +49,7 @@ namespace com.portfolio.gridSystem
             bool resetGridSOButtonValue = false;
             bool regenerateDebugGridButtonValue = false;
 
+            
 
             EditorGUILayout.Separator();
 
@@ -56,7 +64,7 @@ namespace com.portfolio.gridSystem
             SetupHorizontalLayout(GUIElementCallback: () =>
             {
                 EditorGUILayout.LabelField("Editor Debug SO");
-                SourceGridEditorDebugDataSO = (GridEditorDebugDataSO)EditorGUILayout.ObjectField(SourceGridEditorDebugDataSO, typeof(GridEditorDebugDataSO), true);
+                SourceGridEditorDebugDataSO = (GridEditorConfigDataSO)EditorGUILayout.ObjectField(SourceGridEditorDebugDataSO, typeof(GridEditorConfigDataSO), true);
             });
 
             EditorGUILayout.Separator();
@@ -84,6 +92,7 @@ namespace com.portfolio.gridSystem
             if (SourceGridDataSO != null)
             {
                 GridEditorFields();
+                UtilityMenu();
             }
 
             if (debugButtonValue && debugGrid == null && SourceGridEditorDebugDataSO != null)
@@ -108,42 +117,105 @@ namespace com.portfolio.gridSystem
             {
                 lastClickedDebugTile = Selection.activeGameObject.GetComponent<GridTileObject>();
 
-
                 foreach (GridEnums.Direction direction in Enum.GetValues(typeof(GridEnums.Direction)))
                 {
-                    GridTileData adjecentTileData = debugGrid.GetTileInDirection(debugGridTileData, direction);
+                    GridTileData adjecentTileData = debugGrid.GetTileInDirection(debugGridTileData.TileId, direction);
+
+                    float heightAmount = debugGridTileData.Height - adjecentTileData.Height;
+
+                    if(debugGridTileData.SlantDirection == direction)
+                    {
+                        heightAmount += debugGridTileData.LeadingEdgeHeight;
+                    }
 
                     switch (direction)
                     {
                         case GridEnums.Direction.North:
-                            adjecentTileData = new(adjecentTileData, debugGridTileData.Height, GridEnums.Direction.South);
+                            if (!updateNorthTile) continue;
+                            adjecentTileData = new(adjecentTileData, heightAmount, GridEnums.Direction.South);
                             break;
                         case GridEnums.Direction.South:
-                            adjecentTileData = new(adjecentTileData, debugGridTileData.Height, GridEnums.Direction.North);
+                            if (!updateSouthTile) continue;
+                            adjecentTileData = new(adjecentTileData, heightAmount, GridEnums.Direction.North);
                             break;
                         case GridEnums.Direction.East:
-                            adjecentTileData = new(adjecentTileData, debugGridTileData.Height, GridEnums.Direction.West);
+                            if (!updateEastTile ) continue;
+                            adjecentTileData = new(adjecentTileData, heightAmount, GridEnums.Direction.West);
                             break;
                         case GridEnums.Direction.West:
-                            adjecentTileData = new(adjecentTileData, debugGridTileData.Height, GridEnums.Direction.East);
+                            if (!updateWestTile) continue;
+                            adjecentTileData = new(adjecentTileData, heightAmount, GridEnums.Direction.East);
                             break;
                         case GridEnums.Direction.Undefined:
                             break;
                     }
                     SourceGridDataSO.EditorSetTileData(debugGrid, adjecentTileData);
                 }
+                if (resetTile)
+                {
+                    debugGridTileData = new(debugGridTileData.TileId,debugGridTileData.Coordinates);
+                }
                 SourceGridDataSO.EditorSetTileData(debugGrid, debugGridTileData);
             }
 
+            updateNorthTile = false;
+            updateSouthTile = false;
+            updateEastTile = false;
+            updateWestTile = false;
+            resetTile = false;
+        }
+
+        private void UtilityMenu()
+        {
+            EditorGUILayout.Separator();
+            EditorGUILayout.Separator();
+            EditorGUILayout.Separator();
+
+            SetupHorizontalLayout(GUIElementCallback: () =>
+            {
+                EditorGUILayout.LabelField("Utility Menu", EditorStyles.boldLabel);
+            });
+            EditorGUILayout.Separator();
+
+            SetupHorizontalLayout(GUIElementCallback: () =>
+            {
+                EditorGUILayout.Separator();
+                EditorGUILayout.Separator();
+                EditorGUILayout.Separator();
+                EditorGUILayout.Separator();
+                EditorGUILayout.Separator();
+                EditorGUILayout.Separator();
+
+                EditorGUILayout.BeginVertical();
+                updateNorthTile = GUILayout.Button("Snap North Tile");
+                updateSouthTile = GUILayout.Button("Snap South Tile");
+                EditorGUILayout.EndVertical();
+                EditorGUILayout.BeginVertical();
+                updateEastTile = GUILayout.Button("Snap East Tile");
+                updateWestTile = GUILayout.Button("Snap West Tile");
+                EditorGUILayout.EndVertical();
+                EditorGUILayout.Separator();
+                EditorGUILayout.Separator();
+                EditorGUILayout.Separator();
+                EditorGUILayout.Separator();
+                EditorGUILayout.Separator();
+                EditorGUILayout.Separator();
+
+            });
+
+            EditorGUILayout.Separator();
+
+            SetupHorizontalLayout(GUIElementCallback: () =>
+            {
+                resetTile = GUILayout.Button("Reset Tile");
+            });
         }
 
         private void GridEditorFields()
         {
             SetupHorizontalLayout(GUIElementCallback: () =>
             {
-                EditorGUI.BeginDisabledGroup(true);
                 EditorGUILayout.LabelField("Grid Info", EditorStyles.boldLabel);
-                EditorGUI.EndDisabledGroup();
             });
 
             EditorGUILayout.Separator();
@@ -174,7 +246,7 @@ namespace com.portfolio.gridSystem
             GridTileData inTileData = tileData;
             GridTileData outTileData = tileData;
 
-            int tileNumber=tileData.TileNumber;
+            int tileNumber=tileData.TileId;
             Vector2Int coordinates = tileData.Coordinates;
             float height = tileData.Height;
             GridEnums.Direction slantDirection=tileData.SlantDirection;
@@ -189,7 +261,7 @@ namespace com.portfolio.gridSystem
 
             SetupHorizontalLayout(GUIElementCallback: () =>
             {
-                tileNumber = EditorGUILayout.IntField("Tile Number", inTileData.TileNumber);
+                tileNumber = EditorGUILayout.IntField("Tile Number", inTileData.TileId);
             });
 
             EditorGUILayout.Separator();
@@ -205,7 +277,8 @@ namespace com.portfolio.gridSystem
 
             SetupHorizontalLayout(GUIElementCallback: () =>
             {
-                height = EditorGUILayout.Slider("Height", inTileData.Height, -1f, 2f);
+                height = EditorGUILayout.Slider("Height", inTileData.Height, 0, 10);
+                height -= height%SourceGridEditorDebugDataSO.TileHeightSnap;
             });
 
             EditorGUILayout.Separator();
@@ -219,12 +292,7 @@ namespace com.portfolio.gridSystem
 
             SetupHorizontalLayout(GUIElementCallback: () =>
             {
-                EditorGUILayout.BeginVertical();
-                slantAngle = EditorGUILayout.Slider("Slant Angle",outTileData.SlantAngle,0,90);
-                EditorGUILayout.LabelField("-OR-");
-                leadingEdgeHeight = EditorGUILayout.Slider("LeadingEdgeHeight", outTileData.LeadingEdgeHeight, 0, 5);
-                EditorGUILayout.EndVertical();
-
+                leadingEdgeHeight = EditorGUILayout.Slider("Leading Edge Height", outTileData.LeadingEdgeHeight, 0, 5);
             });
 
             EditorGUILayout.Separator();
@@ -236,10 +304,7 @@ namespace com.portfolio.gridSystem
 
             EditorGUILayout.EndVertical();
 
-
-            return new(new GridTileData(tileNumber, coordinates, height, slantDirection, slantAngle, type),leadingEdgeHeight,slantDirection);
-
-            //return new GridTileData(tileNumber,coordinates,height,slantDirection,slantAngle,type);
+            return new(new (tileNumber, coordinates, height, slantDirection, slantAngle, type),leadingEdgeHeight,slantDirection);
         }
 
         private void ResetGridSO()
@@ -265,28 +330,12 @@ namespace com.portfolio.gridSystem
 
 
             debugGrid.GenerateGrid(SourceGridDataSO.GridData, debugTileObject);
-            UpdateEditorTilesInfo(debugGrid);
             DestroyImmediate(gridTileObjectPrefab);
         }
 
         private void ResetGrid()
         {
             GenerateDebugGrid();
-            UpdateEditorTilesInfo(debugGrid);
-        }
-
-        private void UpdateEditorTilesInfo(Grid grid)
-        {
-            foreach (GridTileObject gridTileObject in grid.GridTileObjects)
-            {
-                EditorGridTile EditorTile = gridTileObject.GetComponent<EditorGridTile>();
-
-                if (EditorTile != null)
-                {
-                    EditorTile.UpdateDebugData();
-                }
-
-            }
         }
 
         private void SetupHorizontalLayout(Action GUIElementCallback)

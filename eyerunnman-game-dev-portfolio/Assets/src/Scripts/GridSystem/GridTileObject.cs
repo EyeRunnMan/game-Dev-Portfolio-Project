@@ -15,11 +15,11 @@ namespace com.portfolio.gridSystem
         {
             data = tileData;
 
-            transform.localPosition = new Vector3(tileData.Coordinates.x, tileData.Height, tileData.Coordinates.y);
+            transform.localPosition = tileData.Center;
 
             transform.up = tileData.UpVector;
 
-            gameObject.name = "Grid Tile Object : " + tileData.TileNumber;
+            gameObject.name = "Grid Tile Object : " + tileData.TileId;
         }
 
     }

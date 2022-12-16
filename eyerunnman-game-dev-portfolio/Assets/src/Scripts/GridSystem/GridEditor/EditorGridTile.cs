@@ -36,10 +36,10 @@ namespace com.portfolio.gridSystem
             }
             GridTileData tileData = tile.Data;
 
-            tileNumber.text = tileData.TileNumber.ToString();
+            tileNumber.text = tileData.TileId.ToString();
             coordinates.text = tileData.Coordinates.ToString();
             height.text = tileData.Height.ToString();
-            slantDirection.text = tileData.SlantAngle.ToString();
+            slantDirection.text = tileData.SlantDirection.ToString();
             slantAngle.text = tileData.SlantAngle.ToString();
             tileType.text = tileData.Type.ToString();
 
@@ -56,25 +56,22 @@ namespace com.portfolio.gridSystem
             Vector3 thirdVertex = tile.Data.BottomRightVertex;
             Vector3 fourthVertex = tile.Data.BottomLeftVertex;
 
-            Vector3 currentPositionVector = tile.transform.position;
-
-            firstVertex += currentPositionVector;
-            secondVertex += currentPositionVector;
-            thirdVertex += currentPositionVector;
-            fourthVertex += currentPositionVector;
-
-
             Gizmos.DrawLine(firstVertex, secondVertex);
             Gizmos.DrawLine(secondVertex, thirdVertex);
             Gizmos.DrawLine(thirdVertex, fourthVertex);
             Gizmos.DrawLine(fourthVertex, firstVertex);
 
+            Gizmos.color = Color.red;
+            Gizmos.DrawRay(firstVertex, Vector3.down * firstVertex.y);
+            Gizmos.DrawRay(secondVertex, Vector3.down * secondVertex.y);
+            Gizmos.DrawRay(thirdVertex, Vector3.down * thirdVertex.y);
+            Gizmos.DrawRay(fourthVertex, Vector3.down * fourthVertex.y);
 
             Gizmos.color = Color.gray;
-            Gizmos.DrawSphere(tile.transform.position+tile.Data.TopLeftVertex, 0.01f);
-            Gizmos.DrawSphere(tile.transform.position+tile.Data.TopRightVertex, 0.01f);
-            Gizmos.DrawSphere(tile.transform.position+tile.Data.BottomRightVertex, 0.01f);
-            Gizmos.DrawSphere(tile.transform.position+tile.Data.BottomLeftVertex, 0.01f);
+            Gizmos.DrawSphere(firstVertex, 0.01f);
+            Gizmos.DrawSphere(secondVertex, 0.01f);
+            Gizmos.DrawSphere(thirdVertex, 0.01f);
+            Gizmos.DrawSphere(fourthVertex, 0.01f);
 
         }
 

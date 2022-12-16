@@ -15,16 +15,11 @@ namespace com.portfolio.scriptableObjects{
 
         public void EditorSetTileData(gridSystem.Grid editorGrid , GridTileData data)
         {
-            if (data.Equals(default))
-            {
-                return;
-            }
-
-            editorGrid.SetupTile(data);
+            editorGrid.SetupTile(data.TileId,data);
 
             Dictionary<int, GridTileData> updatedGridTileObjectData = GridData.GridTilesDataDictionary;
 
-            updatedGridTileObjectData[data.TileNumber] = data;
+            updatedGridTileObjectData[data.TileId] = data;
 
             GridData.GridTilesDataDictionary = updatedGridTileObjectData;
         }
@@ -51,26 +46,10 @@ namespace com.portfolio.scriptableObjects{
             {
                 counter += 4;
 
-                Vector3 firstVertex = tileData.TopLeftVertex;
-                Vector3 secondVertex = tileData.TopRightVertex;
-                Vector3 thirdVertex = tileData.BottomRightVertex;
-                Vector3 fourthVertex = tileData.BottomLeftVertex;
-
-                Vector3 currentPositionVector = new Vector3(tileData.Coordinates.x, tileData.Height, tileData.Coordinates.y);
-
-                firstVertex += currentPositionVector;
-                secondVertex += currentPositionVector;
-                thirdVertex += currentPositionVector;
-                fourthVertex += currentPositionVector;
-
-                vertices.Add(firstVertex);
-                uv.Add(firstVertex);
-                vertices.Add(secondVertex);
-                uv.Add(secondVertex);
-                vertices.Add(thirdVertex);
-                uv.Add(thirdVertex);
-                vertices.Add(fourthVertex);
-                uv.Add(fourthVertex);
+                vertices.Add(tileData.TopLeftVertex);
+                vertices.Add(tileData.TopRightVertex);
+                vertices.Add(tileData.BottomRightVertex);
+                vertices.Add(tileData.BottomLeftVertex);
 
                 Triangles.Add(counter - 4);
                 Triangles.Add(counter - 3);
@@ -86,13 +65,8 @@ namespace com.portfolio.scriptableObjects{
 
             mesh.vertices = vertices.ToArray();
             mesh.triangles = Triangles.ToArray();
-            //mesh.uv = uv.ToArray();
 
             GridMesh = mesh;
-            //get all vertices 
-            //make a list of triangles from those vertices
-            //make triangles from those vertices
-
             return mesh;
         }
     }
@@ -132,13 +106,13 @@ namespace com.portfolio.gridSystem
 
                 foreach (GridTileData gridTileData in GridTilesData)
                 {
-                    if (keyValuePairs.ContainsKey(gridTileData.TileNumber))
+                    if (keyValuePairs.ContainsKey(gridTileData.TileId))
                     {
-                        keyValuePairs[gridTileData.TileNumber] = gridTileData;
+                        keyValuePairs[gridTileData.TileId] = gridTileData;
                     }
-                    else
+                    else if(!gridTileData.IsDefault)
                     {
-                        throw new Exception("Illegal Values in list"); 
+                        throw new Exception("Illegal Values in list TileNumber : "+ gridTileData.TileId); 
                     }
                 }
 
@@ -170,10 +144,10 @@ namespace com.portfolio.gridSystem
     }
 
     [Serializable]
-    public struct GridTileData
+    public struct GridTileData : IEquatable<GridTileData>
     {
         [SerializeField]
-        private int tileNumber;
+        private int tileId;
         [SerializeField]
         private Vector2Int coordinates;
         [SerializeField]
@@ -185,9 +159,13 @@ namespace com.portfolio.gridSystem
         [SerializeField]
         private GridEnums.Tile.Type type;
 
-        public GridTileData(int tileNumber, Vector2Int coordinates, float height=0, GridEnums.Direction slantDirection=GridEnums.Direction.North, float slantAngle=0, GridEnums.Tile.Type type=GridEnums.Tile.Type.Undefined)
+        public static GridTileData Default => new(-1,new Vector2Int(-1,-1));
+
+        public bool IsDefault => this == Default;
+
+        public GridTileData(int tileId, Vector2Int coordinates, float height=0, GridEnums.Direction slantDirection=GridEnums.Direction.North, float slantAngle=0, GridEnums.Tile.Type type=GridEnums.Tile.Type.Undefined)
         {
-            this.tileNumber = tileNumber;
+            this.tileId = tileId;
             this.coordinates = coordinates;
             this.height = height;
             this.slantDirection = slantDirection;
@@ -195,22 +173,51 @@ namespace com.portfolio.gridSystem
             this.type = type;
         }
 
-        public GridTileData(GridTileData refrenceData,float leadingEdgeHeight,GridEnums.Direction slantDirection)
+        public GridTileData(GridTileData refrenceData , float leadingEdgeHeight , GridEnums.Direction slantDirection)
         {
-            this.tileNumber = refrenceData.TileNumber;
+
+            if (refrenceData.IsDefault)
+            {
+                this = Default;
+                return;
+            }
+
+            this.tileId = refrenceData.TileId;
             this.coordinates = refrenceData.coordinates;
             this.height = refrenceData.height;
             this.slantDirection = slantDirection;
             this.type = refrenceData.type;
 
-            slantAngle = Vector2.Angle(Vector2.up * leadingEdgeHeight+Vector2.right, Vector2.right);
+            slantAngle = Vector2.Angle(Vector2.up * leadingEdgeHeight + Vector2.right, Vector2.right);
+
+            if (leadingEdgeHeight < 0)
+            {
+                this.height = refrenceData.height+leadingEdgeHeight;
+
+                this.slantDirection = slantDirection switch
+                {
+                    GridEnums.Direction.North => GridEnums.Direction.South,
+                    GridEnums.Direction.South => GridEnums.Direction.North,
+                    GridEnums.Direction.East => GridEnums.Direction.West,
+                    GridEnums.Direction.West => GridEnums.Direction.East,
+                    _ => slantDirection,
+                };
+            }
         }
 
-        public int TileNumber => tileNumber;
+        #region Public Properties
+
+
+        public int TileId => tileId;
+
         public Vector2Int Coordinates => coordinates;
+
         public GridEnums.Direction SlantDirection => slantDirection;
+
         public float Height=> height;
+
         public float SlantAngle => slantAngle;
+
         public GridEnums.Tile.Type Type => type;
 
         public Vector3 UpVector
@@ -261,6 +268,7 @@ namespace com.portfolio.gridSystem
             }
 
         }
+
         public Vector3 ForwardVector
         {
             get
@@ -303,6 +311,7 @@ namespace com.portfolio.gridSystem
                 return forwardVector.normalized;
             }
         }
+
         public Vector3 RighVector
         {
             get
@@ -345,14 +354,17 @@ namespace com.portfolio.gridSystem
                 return rightVector.normalized;
             }
         }
+
         public Vector3 DownVector
         {
             get => -UpVector.normalized;
         }
+
         public Vector3 BackVector
         {
             get => -ForwardVector.normalized;
         }
+
         public Vector3 LeftVector
         {
             get => -RighVector.normalized;
@@ -368,9 +380,10 @@ namespace com.portfolio.gridSystem
                     GridEnums.Direction.East or GridEnums.Direction.West => (LeftVector * (1 + SlantGap) + ForwardVector) / 2,
                     _ => Vector3.zero,
                 };
-                return Vertex + Vector3.up * SlantHeightOffset;
+                return Vertex + Vector3.up * SlantHeightOffset + TileCenter;
             }
         }
+
         public Vector3 TopRightVertex
         {
             get
@@ -381,9 +394,10 @@ namespace com.portfolio.gridSystem
                     GridEnums.Direction.East or GridEnums.Direction.West => (RighVector * (1 + SlantGap) + ForwardVector) / 2,
                     _ => Vector3.zero,
                 };
-                return Vertex + Vector3.up * SlantHeightOffset;
+                return Vertex + Vector3.up * SlantHeightOffset + TileCenter;
             }
         }
+
         public Vector3 BottomRightVertex
         {
             get
@@ -394,9 +408,10 @@ namespace com.portfolio.gridSystem
                     GridEnums.Direction.East or GridEnums.Direction.West => (RighVector * (1 + SlantGap) + BackVector) / 2,
                     _ => Vector3.zero,
                 };
-                return Vertex + Vector3.up * SlantHeightOffset;
+                return Vertex + Vector3.up * SlantHeightOffset + TileCenter;
             }
         }
+
         public Vector3 BottomLeftVertex
         {
             get
@@ -408,9 +423,13 @@ namespace com.portfolio.gridSystem
                     _ => Vector3.zero,
                 };
 
-                return Vertex + Vector3.up * SlantHeightOffset;
+                return Vertex + Vector3.up * SlantHeightOffset + TileCenter;
             }
         }
+
+        public Vector3 Center => new(Coordinates.x, Height + SlantHeightOffset, Coordinates.y);
+
+        private Vector3 TileCenter => new(Coordinates.x, Height, Coordinates.y);
 
         public float LeadingEdgeHeight
         {
@@ -437,7 +456,7 @@ namespace com.portfolio.gridSystem
                 return cosVal * hypotenuseLenght/2;
             }
         }
-   
+
         private float SlantGap
         {
             get
@@ -446,6 +465,65 @@ namespace com.portfolio.gridSystem
 
                 return (hypotenuseLength-1);
             }
+        }
+
+
+        #endregion
+
+        public override bool Equals(object obj)
+        {
+            return obj is GridTileData data && Equals(data);
+        }
+        public bool Equals(GridTileData other)
+        {
+            if (other.GetHashCode() != GetHashCode())
+            {
+                return false;
+            }
+
+            return tileId == other.tileId &&
+                   coordinates.Equals(other.coordinates) &&
+                   height == other.height &&
+                   slantDirection == other.slantDirection &&
+                   slantAngle == other.slantAngle &&
+                   type == other.type &&
+                   TopLeftVertex.Equals(other.TopLeftVertex) &&
+                   TopRightVertex.Equals(other.TopRightVertex) &&
+                   BottomRightVertex.Equals(other.BottomRightVertex) &&
+                   BottomLeftVertex.Equals(other.BottomLeftVertex) &&
+                   Center.Equals(other.Center) &&
+                   TileCenter.Equals(other.TileCenter) &&
+                   LeadingEdgeHeight == other.LeadingEdgeHeight &&
+                   SlantHeightOffset == other.SlantHeightOffset &&
+                   SlantGap == other.SlantGap;
+        }
+        public override int GetHashCode()
+        {
+            HashCode hash = new();
+            hash.Add(tileId);
+            hash.Add(coordinates);
+            hash.Add(height);
+            hash.Add(slantDirection);
+            hash.Add(slantAngle);
+            hash.Add(type);
+            hash.Add(TopLeftVertex);
+            hash.Add(TopRightVertex);
+            hash.Add(BottomRightVertex);
+            hash.Add(BottomLeftVertex);
+            hash.Add(Center);
+            hash.Add(TileCenter);
+            hash.Add(LeadingEdgeHeight);
+            hash.Add(SlantHeightOffset);
+            hash.Add(SlantGap);
+            return hash.ToHashCode();
+        }
+        public static bool operator ==(GridTileData left, GridTileData right)
+        {
+            return left.Equals(right);
+        }
+        public static bool operator !=(GridTileData left, GridTileData right)
+        {
+            return !(left == right);
         }
     }
 

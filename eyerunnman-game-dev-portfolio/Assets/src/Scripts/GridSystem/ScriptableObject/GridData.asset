@@ -15,154 +15,160 @@ MonoBehaviour:
   GridData:
     gridDimension: {x: 5, y: 5}
     GridTilesData:
-    - tileNumber: 0
+    - tileId: 0
       coordinates: {x: 0, y: 0}
       height: 0
-      slantDirection: 0
-      slantAngle: 0
+      slantDirection: 1
+      slantAngle: 52.431416
       type: 0
-    - tileNumber: 1
+    - tileId: 1
       coordinates: {x: 1, y: 0}
       height: 0
       slantDirection: 0
       slantAngle: 0
       type: 0
-    - tileNumber: 2
+    - tileId: 2
       coordinates: {x: 2, y: 0}
       height: 0
       slantDirection: 0
       slantAngle: 0
       type: 0
-    - tileNumber: 3
+    - tileId: 3
       coordinates: {x: 3, y: 0}
       height: 0
       slantDirection: 0
       slantAngle: 0
       type: 0
-    - tileNumber: 4
+    - tileId: 4
       coordinates: {x: 4, y: 0}
       height: 0
       slantDirection: 0
       slantAngle: 0
       type: 0
-    - tileNumber: 5
+    - tileId: 5
       coordinates: {x: 0, y: 1}
       height: 0
       slantDirection: 0
       slantAngle: 0
       type: 0
-    - tileNumber: 6
+    - tileId: 6
       coordinates: {x: 1, y: 1}
       height: 0
-      slantDirection: 0
+      slantDirection: 3
       slantAngle: 0
       type: 0
-    - tileNumber: 7
+    - tileId: 7
       coordinates: {x: 2, y: 1}
       height: 0
       slantDirection: 0
       slantAngle: 0
       type: 0
-    - tileNumber: 8
+    - tileId: 8
       coordinates: {x: 3, y: 1}
-      height: 1.028
-      slantDirection: 0
-      slantAngle: 0
-      type: 0
-    - tileNumber: 9
-      coordinates: {x: 4, y: 1}
-      height: -0.16
-      slantDirection: 0
-      slantAngle: 0
-      type: 0
-    - tileNumber: 10
-      coordinates: {x: 0, y: 2}
       height: 0
       slantDirection: 0
       slantAngle: 0
       type: 0
-    - tileNumber: 11
+    - tileId: 9
+      coordinates: {x: 4, y: 1}
+      height: 0
+      slantDirection: 0
+      slantAngle: 0
+      type: 0
+    - tileId: 10
+      coordinates: {x: 0, y: 2}
+      height: 0
+      slantDirection: 1
+      slantAngle: 0
+      type: 0
+    - tileId: 11
       coordinates: {x: 1, y: 2}
       height: 0
       slantDirection: 0
       slantAngle: 0
       type: 0
-    - tileNumber: 12
+    - tileId: 12
       coordinates: {x: 2, y: 2}
       height: 0
       slantDirection: 0
       slantAngle: 0
       type: 0
-    - tileNumber: 13
+    - tileId: 13
       coordinates: {x: 3, y: 2}
       height: 0
       slantDirection: 0
       slantAngle: 0
       type: 0
-    - tileNumber: 14
+    - tileId: 14
       coordinates: {x: 4, y: 2}
-      height: -0.274
+      height: 0
       slantDirection: 0
       slantAngle: 0
       type: 0
-    - tileNumber: 15
+    - tileId: 15
       coordinates: {x: 0, y: 3}
       height: 0
       slantDirection: 0
       slantAngle: 0
       type: 0
-    - tileNumber: 16
+    - tileId: 16
       coordinates: {x: 1, y: 3}
       height: 0
       slantDirection: 0
       slantAngle: 0
       type: 0
-    - tileNumber: 17
+    - tileId: 17
       coordinates: {x: 2, y: 3}
       height: 0
       slantDirection: 0
       slantAngle: 0
       type: 0
-    - tileNumber: 18
+    - tileId: 18
       coordinates: {x: 3, y: 3}
       height: 0
       slantDirection: 0
       slantAngle: 0
       type: 0
-    - tileNumber: 19
+    - tileId: 19
       coordinates: {x: 4, y: 3}
       height: 0
       slantDirection: 0
       slantAngle: 0
       type: 0
-    - tileNumber: 20
+    - tileId: 20
       coordinates: {x: 0, y: 4}
       height: 0
       slantDirection: 0
       slantAngle: 0
       type: 0
-    - tileNumber: 21
+    - tileId: 21
       coordinates: {x: 1, y: 4}
       height: 0
       slantDirection: 0
       slantAngle: 0
       type: 0
-    - tileNumber: 22
+    - tileId: 22
       coordinates: {x: 2, y: 4}
       height: 0
       slantDirection: 0
       slantAngle: 0
       type: 0
-    - tileNumber: 23
+    - tileId: 23
       coordinates: {x: 3, y: 4}
       height: 0
       slantDirection: 0
       slantAngle: 0
       type: 0
-    - tileNumber: 24
+    - tileId: 24
       coordinates: {x: 4, y: 4}
       height: 0
       slantDirection: 0
+      slantAngle: 0
+      type: 0
+    - tileId: -1
+      coordinates: {x: -1, y: -1}
+      height: 0
+      slantDirection: 2
       slantAngle: 0
       type: 0
   GridMesh: {fileID: 0}

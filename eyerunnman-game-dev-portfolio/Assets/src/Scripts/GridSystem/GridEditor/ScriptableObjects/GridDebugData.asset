@@ -14,3 +14,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   DebugTileObject: {fileID: 5002812875274462437, guid: 95ce2abda1161a1478394aa110378f5d,
     type: 3}
+  TileHeightSnap: 0.1
