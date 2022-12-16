@@ -40,20 +40,20 @@ namespace com.portfolio.gridSystem
             ServiceLocator.Current.Register<GridGenerator>(this, overrideService);
         }
 
-        private async Task GridGeneration(GridData gridData, GridTileObject gridTileObjectPrefab)
+        private Task GridGeneration(GridData gridData, GridTileObject gridTileObjectPrefab)
         {
             // check if grid is already there or not
-            if(Grid!=null)
+            if (Grid!=null)
             {
-                return;
+                return Task.CompletedTask;
             }
 
             //instantiate local grid game object
             Grid = Instantiate(gridPrefab, transform);
 
             //generate grid
-            await Grid.GenerateGridAsync(gridData, gridTileObjectPrefab);
-
+            Grid.GenerateGrid(gridData, gridTileObjectPrefab);
+            return Task.CompletedTask;
         }
     }
 }

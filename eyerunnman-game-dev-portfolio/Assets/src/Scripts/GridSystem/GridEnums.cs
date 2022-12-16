@@ -6,7 +6,7 @@ namespace com.portfolio.gridSystem
     public static class GridEnums{
 
         [Serializable]
-        public enum Navigation
+        public enum Direction
         {
             North,
             South,

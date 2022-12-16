@@ -13,27 +13,14 @@ namespace com.portfolio.scriptableObjects{
         public GridData GridData=new();
         public Mesh GridMesh;
 
-        public void EditorUpdateGridData (gridSystem.Grid editorGrid)
+        public void EditorSetTileData(gridSystem.Grid editorGrid , GridTileData data)
         {
-
-            Dictionary<int, GridTileData> updatedTileDataDictionary = new();
-
-            foreach (GridTileObject tile in editorGrid.GridTileObjects)
+            if (data.Equals(default))
             {
-                GridTileData tileData = tile.Data;
-
-                tileData.Height = tile.transform.position.y;
-
-                updatedTileDataDictionary.Add(tileData.TileNumber, tileData);
-
+                return;
             }
 
-            GridData.GridTilesDataDictionary = updatedTileDataDictionary;
-        }
-
-        public void EditorSetTileData(GridTileObject gridTileObject , GridTileData data)
-        {
-            gridTileObject.SetUpTile(data);
+            editorGrid.SetupTile(data);
 
             Dictionary<int, GridTileData> updatedGridTileObjectData = GridData.GridTilesDataDictionary;
 
@@ -69,7 +56,7 @@ namespace com.portfolio.scriptableObjects{
                 Vector3 thirdVertex = tileData.BottomRightVertex;
                 Vector3 fourthVertex = tileData.BottomLeftVertex;
 
-                Vector3 currentPositionVector = new Vector3(tileData.Coordinates.X, tileData.Height, tileData.Coordinates.Y);
+                Vector3 currentPositionVector = new Vector3(tileData.Coordinates.x, tileData.Height, tileData.Coordinates.y);
 
                 firstVertex += currentPositionVector;
                 secondVertex += currentPositionVector;
@@ -118,12 +105,12 @@ namespace com.portfolio.gridSystem
     public struct GridData
     {
         [SerializeField]
-        private Vector2Int gridDimension;
+        private UnityEngine.Vector2Int gridDimension;
 
         [SerializeField]
         private List<GridTileData> GridTilesData;
 
-        public Vector2Int GridDimension { get => gridDimension; }
+        public UnityEngine.Vector2Int GridDimension { get => gridDimension; }
         public Dictionary<int, GridTileData> GridTilesDataDictionary
         {
             get
@@ -138,11 +125,7 @@ namespace com.portfolio.gridSystem
                     int yCoordinate = (int)Mathf.Floor(tileNumber / gridDimension.x);
                     int xCoordinate = (tileNumber % gridDimension.x);
 
-                    GridTileData tileData = new()
-                    {
-                        Coordinates = new() { X = xCoordinate, Y = yCoordinate },
-                        TileNumber = tileNumber
-                    };
+                    GridTileData tileData = new(tileNumber, new Vector2Int(xCoordinate, yCoordinate));
 
                     keyValuePairs.Add(tileNumber, tileData);
                 }
@@ -151,8 +134,6 @@ namespace com.portfolio.gridSystem
                 {
                     if (keyValuePairs.ContainsKey(gridTileData.TileNumber))
                     {
-                        gridTileData.SoftClone(keyValuePairs[gridTileData.TileNumber]);
-
                         keyValuePairs[gridTileData.TileNumber] = gridTileData;
                     }
                     else
@@ -174,12 +155,12 @@ namespace com.portfolio.gridSystem
             }
         }
 
-        public GridData(Vector2Int dimension, List<GridTileData> gridTilesData)
+        public GridData(UnityEngine.Vector2Int dimension, List<GridTileData> gridTilesData)
         {
             gridDimension = dimension;
             GridTilesData = gridTilesData;
         }
-        public GridData(Vector2Int dimension)
+        public GridData(UnityEngine.Vector2Int dimension)
         {
             gridDimension = dimension;
             GridTilesData = new();
@@ -191,18 +172,46 @@ namespace com.portfolio.gridSystem
     [Serializable]
     public struct GridTileData
     {
-        public int TileNumber;
-        public GridTileCoordinate Coordinates;
-        public float Height;
-        public GridEnums.Navigation SlantDirection;
-        public int SlantAngle;
-        public GridEnums.Tile.Type Type;
+        [SerializeField]
+        private int tileNumber;
+        [SerializeField]
+        private Vector2Int coordinates;
+        [SerializeField]
+        private float height;
+        [SerializeField]
+        private GridEnums.Direction slantDirection;
+        [SerializeField]
+        private float slantAngle;
+        [SerializeField]
+        private GridEnums.Tile.Type type;
 
-        public void SoftClone(GridTileData data)
+        public GridTileData(int tileNumber, Vector2Int coordinates, float height=0, GridEnums.Direction slantDirection=GridEnums.Direction.North, float slantAngle=0, GridEnums.Tile.Type type=GridEnums.Tile.Type.Undefined)
         {
-            TileNumber = data.TileNumber;
-            Coordinates = data.Coordinates;
+            this.tileNumber = tileNumber;
+            this.coordinates = coordinates;
+            this.height = height;
+            this.slantDirection = slantDirection;
+            this.slantAngle = slantAngle;
+            this.type = type;
         }
+
+        public GridTileData(GridTileData refrenceData,float leadingEdgeHeight,GridEnums.Direction slantDirection)
+        {
+            this.tileNumber = refrenceData.TileNumber;
+            this.coordinates = refrenceData.coordinates;
+            this.height = refrenceData.height;
+            this.slantDirection = slantDirection;
+            this.type = refrenceData.type;
+
+            slantAngle = Vector2.Angle(Vector2.up * leadingEdgeHeight+Vector2.right, Vector2.right);
+        }
+
+        public int TileNumber => tileNumber;
+        public Vector2Int Coordinates => coordinates;
+        public GridEnums.Direction SlantDirection => slantDirection;
+        public float Height=> height;
+        public float SlantAngle => slantAngle;
+        public GridEnums.Tile.Type Type => type;
 
         public Vector3 UpVector
         {
@@ -210,19 +219,35 @@ namespace com.portfolio.gridSystem
             {
                 Vector3 slantDirectionVector = new();
 
-                switch (SlantDirection)
+                switch (slantDirection)
                 {
-                    case GridEnums.Navigation.North:
+                    case GridEnums.Direction.North:
                         slantDirectionVector = Vector3.forward;
+                        if (slantAngle == 90)
+                        {
+                            return Vector3.back;
+                        }
                         break;
-                    case GridEnums.Navigation.South:
+                    case GridEnums.Direction.South:
                         slantDirectionVector = Vector3.back;
+                        if (slantAngle == 90)
+                        {
+                            return Vector3.forward;
+                        }
                         break;
-                    case GridEnums.Navigation.East:
+                    case GridEnums.Direction.East:
                         slantDirectionVector = Vector3.right;
+                        if (slantAngle == 90)
+                        {
+                            return Vector3.left;
+                        }
                         break;
-                    case GridEnums.Navigation.West:
+                    case GridEnums.Direction.West:
                         slantDirectionVector = Vector3.left;
+                        if (slantAngle == 90)
+                        {
+                            return Vector3.right;
+                        }
                         break;
                     default:
                         break;
@@ -230,7 +255,7 @@ namespace com.portfolio.gridSystem
 
                 Vector3 aboutAxis = Vector3.Cross(slantDirectionVector, Vector3.up);
 
-                Vector3 upwardVector = Quaternion.AngleAxis(SlantAngle, aboutAxis) * Vector3.up;
+                Vector3 upwardVector = Quaternion.AngleAxis(slantAngle, aboutAxis) * Vector3.up;
 
                 return upwardVector.normalized;
             }
@@ -240,6 +265,36 @@ namespace com.portfolio.gridSystem
         {
             get
             {
+                switch (slantDirection)
+                {
+                    case GridEnums.Direction.North:
+                        if (slantAngle == 90)
+                        {
+                            return Vector3.up;
+                        }
+                        break;
+                    case GridEnums.Direction.South:
+                        if (slantAngle == 90)
+                        {
+                            return Vector3.down;
+                        }
+                        break;
+                    case GridEnums.Direction.East:
+                        if (slantAngle == 90)
+                        {
+                            return Vector3.forward;
+                        }
+                        break;
+                    case GridEnums.Direction.West:
+                        if (slantAngle == 90)
+                        {
+                            return Vector3.forward;
+                        }
+                        break;
+                    default:
+                        break;
+                }
+
 
                 Vector3 aboutAxis = Vector3.Cross(UpVector, Vector3.forward);
 
@@ -252,6 +307,36 @@ namespace com.portfolio.gridSystem
         {
             get
             {
+                switch (slantDirection)
+                {
+                    case GridEnums.Direction.North:
+                        if (slantAngle == 90)
+                        {
+                            return Vector3.right;
+                        }
+                        break;
+                    case GridEnums.Direction.South:
+                        if (slantAngle == 90)
+                        {
+                            return Vector3.right;
+                        }
+                        break;
+                    case GridEnums.Direction.East:
+                        if (slantAngle == 90)
+                        {
+                            return Vector3.up;
+                        }
+                        break;
+                    case GridEnums.Direction.West:
+                        if (slantAngle == 90)
+                        {
+                            return Vector3.down;
+                        }
+                        break;
+                    default:
+                        break;
+                }
+
 
                 Vector3 aboutAxis = Vector3.Cross(UpVector, Vector3.right);
 
@@ -277,72 +362,93 @@ namespace com.portfolio.gridSystem
         {
             get
             {
-                return SlantDirection switch
+                Vector3 Vertex = slantDirection switch
                 {
-                    GridEnums.Navigation.North or GridEnums.Navigation.South => (ForwardVector * (1 + SlantGap) + LeftVector) / 2,
-                    GridEnums.Navigation.East or GridEnums.Navigation.West => (LeftVector * (1 + SlantGap) + ForwardVector) / 2,
+                    GridEnums.Direction.North or GridEnums.Direction.South => (ForwardVector * (1 + SlantGap) + LeftVector) / 2,
+                    GridEnums.Direction.East or GridEnums.Direction.West => (LeftVector * (1 + SlantGap) + ForwardVector) / 2,
                     _ => Vector3.zero,
                 };
+                return Vertex + Vector3.up * SlantHeightOffset;
             }
         }
         public Vector3 TopRightVertex
         {
             get
             {
-                return SlantDirection switch
+                Vector3 Vertex = slantDirection switch
                 {
-                    GridEnums.Navigation.North or GridEnums.Navigation.South => (ForwardVector * (1 + SlantGap) + RighVector) / 2,
-                    GridEnums.Navigation.East or GridEnums.Navigation.West => (RighVector * (1 + SlantGap) + ForwardVector) / 2,
+                    GridEnums.Direction.North or GridEnums.Direction.South => (ForwardVector * (1 + SlantGap) + RighVector) / 2,
+                    GridEnums.Direction.East or GridEnums.Direction.West => (RighVector * (1 + SlantGap) + ForwardVector) / 2,
                     _ => Vector3.zero,
                 };
+                return Vertex + Vector3.up * SlantHeightOffset;
             }
         }
         public Vector3 BottomRightVertex
         {
             get
             {
-                return SlantDirection switch
+                Vector3 Vertex = slantDirection switch
                 {
-                    GridEnums.Navigation.North or GridEnums.Navigation.South => (BackVector * (1 + SlantGap) + RighVector) / 2,
-                    GridEnums.Navigation.East or GridEnums.Navigation.West => (RighVector * (1 + SlantGap) + BackVector) / 2,
+                    GridEnums.Direction.North or GridEnums.Direction.South => (BackVector * (1 + SlantGap) + RighVector) / 2,
+                    GridEnums.Direction.East or GridEnums.Direction.West => (RighVector * (1 + SlantGap) + BackVector) / 2,
                     _ => Vector3.zero,
                 };
+                return Vertex + Vector3.up * SlantHeightOffset;
             }
         }
         public Vector3 BottomLeftVertex
         {
             get
             {
-                return SlantDirection switch
+                Vector3 Vertex =  slantDirection switch
                 {
-                    GridEnums.Navigation.North or GridEnums.Navigation.South => (BackVector * (1 + SlantGap) + LeftVector) / 2,
-                    GridEnums.Navigation.East or GridEnums.Navigation.West => (LeftVector * (1 + SlantGap) + BackVector) / 2,
+                    GridEnums.Direction.North or GridEnums.Direction.South => (BackVector * (1 + SlantGap) + LeftVector) / 2,
+                    GridEnums.Direction.East or GridEnums.Direction.West => (LeftVector * (1 + SlantGap) + BackVector) / 2,
                     _ => Vector3.zero,
                 };
+
+                return Vertex + Vector3.up * SlantHeightOffset;
             }
         }
 
+        public float LeadingEdgeHeight
+        {
+            get
+            {
+                float angle = slantAngle;
+                float hypotenuse = 1 + SlantGap;
+
+                float sinvalue = Mathf.Sin(angle * Mathf.Deg2Rad);
+
+                return sinvalue * hypotenuse;
+            }
+        }
+
+        private float SlantHeightOffset
+        {
+            get
+            {
+                float angle = 90 - slantAngle;
+                float hypotenuseLenght = 1 + SlantGap;
+
+                float cosVal = Mathf.Cos(angle*Mathf.Deg2Rad);
+
+                return cosVal * hypotenuseLenght/2;
+            }
+        }
+   
         private float SlantGap
         {
             get
             {
-                float hypotenuseLength = 1 / Mathf.Cos(SlantAngle * Mathf.Deg2Rad);
+                float hypotenuseLength = 1 / Mathf.Cos(slantAngle * Mathf.Deg2Rad);
 
                 return (hypotenuseLength-1);
             }
         }
     }
 
-    [Serializable]
-    public struct GridTileCoordinate
-    {
-        public int X;
-        public int Y;
 
-        public override string ToString()
-        {
-            return "X : "+X+" Y : "+Y;
-        }
-    }
 }
 

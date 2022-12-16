@@ -8,21 +8,18 @@ namespace com.portfolio.gridSystem
 {
     public class GridTileObject : MonoBehaviour
     {
-        public GridTileData Data { get { return _data; } }
-        public bool IsInitalized { get { return IsInitalized; } }
-
-        private GridTileData _data;
+        public GridTileData Data { get { return data; } }
+        private GridTileData data;
 
         public void SetUpTile(GridTileData tileData)
         {
-            _data = tileData;
+            data = tileData;
 
-            transform.localPosition = new Vector3(tileData.Coordinates.X, tileData.Height, tileData.Coordinates.Y);
+            transform.localPosition = new Vector3(tileData.Coordinates.x, tileData.Height, tileData.Coordinates.y);
 
             transform.up = tileData.UpVector;
 
             gameObject.name = "Grid Tile Object : " + tileData.TileNumber;
-
         }
 
     }

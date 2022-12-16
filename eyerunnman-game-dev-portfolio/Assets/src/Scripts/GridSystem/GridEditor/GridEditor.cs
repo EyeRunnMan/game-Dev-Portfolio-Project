@@ -1,4 +1,6 @@
-﻿using UnityEditor;
+﻿using System.Collections;
+using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
 using com.portfolio.scriptableObjects;
 using UnityEngine.UIElements;
@@ -105,7 +107,32 @@ namespace com.portfolio.gridSystem
             if (Selection.activeGameObject != null && Selection.activeGameObject.GetComponent<GridTileObject>())
             {
                 lastClickedDebugTile = Selection.activeGameObject.GetComponent<GridTileObject>();
-                SourceGridDataSO.EditorSetTileData(lastClickedDebugTile, debugGridTileData);
+
+
+                foreach (GridEnums.Direction direction in Enum.GetValues(typeof(GridEnums.Direction)))
+                {
+                    GridTileData adjecentTileData = debugGrid.GetTileInDirection(debugGridTileData, direction);
+
+                    switch (direction)
+                    {
+                        case GridEnums.Direction.North:
+                            adjecentTileData = new(adjecentTileData, debugGridTileData.Height, GridEnums.Direction.South);
+                            break;
+                        case GridEnums.Direction.South:
+                            adjecentTileData = new(adjecentTileData, debugGridTileData.Height, GridEnums.Direction.North);
+                            break;
+                        case GridEnums.Direction.East:
+                            adjecentTileData = new(adjecentTileData, debugGridTileData.Height, GridEnums.Direction.West);
+                            break;
+                        case GridEnums.Direction.West:
+                            adjecentTileData = new(adjecentTileData, debugGridTileData.Height, GridEnums.Direction.East);
+                            break;
+                        case GridEnums.Direction.Undefined:
+                            break;
+                    }
+                    SourceGridDataSO.EditorSetTileData(debugGrid, adjecentTileData);
+                }
+                SourceGridDataSO.EditorSetTileData(debugGrid, debugGridTileData);
             }
 
         }
@@ -147,20 +174,28 @@ namespace com.portfolio.gridSystem
             GridTileData inTileData = tileData;
             GridTileData outTileData = tileData;
 
+            int tileNumber=tileData.TileNumber;
+            Vector2Int coordinates = tileData.Coordinates;
+            float height = tileData.Height;
+            GridEnums.Direction slantDirection=tileData.SlantDirection;
+            float slantAngle = tileData.SlantAngle;
+            GridEnums.Tile.Type type = tileData.Type;
+
+
             EditorGUILayout.BeginVertical();
 
             EditorGUI.BeginDisabledGroup(true);
 
             SetupHorizontalLayout(GUIElementCallback: () =>
             {
-                outTileData.TileNumber = EditorGUILayout.IntField("Tile Number", inTileData.TileNumber);
+                tileNumber = EditorGUILayout.IntField("Tile Number", inTileData.TileNumber);
             });
 
             EditorGUILayout.Separator();
 
             SetupHorizontalLayout(GUIElementCallback: () =>
             {
-                EditorGUILayout.Vector2IntField("Tile Coordinates", new Vector2Int(inTileData.Coordinates.X, inTileData.Coordinates.Y));
+                EditorGUILayout.Vector2IntField("Tile Coordinates", new UnityEngine.Vector2Int(inTileData.Coordinates.x, inTileData.Coordinates.y));
             });
 
             EditorGUI.EndDisabledGroup();
@@ -169,33 +204,33 @@ namespace com.portfolio.gridSystem
 
             SetupHorizontalLayout(GUIElementCallback: () =>
             {
-                outTileData.Height = EditorGUILayout.Slider("Height", inTileData.Height, -1f, 2f);
+                height = EditorGUILayout.Slider("Height", inTileData.Height, -1f, 2f);
             });
 
             EditorGUILayout.Separator();
 
             SetupHorizontalLayout(GUIElementCallback: () =>
             {
-                outTileData.SlantDirection = (GridEnums.Navigation)EditorGUILayout.EnumPopup("Slant Direction", inTileData.SlantDirection);
+                slantDirection = (GridEnums.Direction)EditorGUILayout.EnumPopup("Slant Direction", inTileData.SlantDirection);
             });
 
             EditorGUILayout.Separator();
 
             SetupHorizontalLayout(GUIElementCallback: () =>
             {
-                outTileData.SlantAngle = EditorGUILayout.IntSlider("Slant Angle",outTileData.SlantAngle,0,90);
+                slantAngle = EditorGUILayout.Slider("Slant Angle",outTileData.SlantAngle,0,90);
             });
 
             EditorGUILayout.Separator();
 
             SetupHorizontalLayout(GUIElementCallback: () =>
             {
-                outTileData.Type = (GridEnums.Tile.Type)EditorGUILayout.EnumPopup("Tile Type", inTileData.Type);
+                type = (GridEnums.Tile.Type)EditorGUILayout.EnumPopup("Tile Type", inTileData.Type);
             });
 
             EditorGUILayout.EndVertical();
 
-            return outTileData;
+            return new GridTileData(tileNumber,coordinates,height,slantDirection,slantAngle,type);
         }
 
         private void ResetGridSO()
